@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, Save, MapPin, Crosshair, Phone, MoveVertical as MoreVertical } from 'lucide-react-native';
+import { ArrowLeft, Save, MapPin, Crosshair, Phone, MoveVertical as MoreVertical, X } from 'lucide-react-native';
 import { useAppData } from '@/hooks/useAppData';
 import { getCurrentLocation, geocodeAddress, openMaps, openPhone } from '@/utils/locationUtils';
 
@@ -168,8 +168,8 @@ export default function ClientDetailScreen() {
             <Save size={20} color="#FFFFFF" />
           </TouchableOpacity>
           
-          <TouchableOpacity onPress={handleDeleteClient} style={styles.actionButton}>
-            <MoreVertical size={20} color="#6B7280" />
+          <TouchableOpacity onPress={handleDeleteClient} style={styles.deleteActionButton}>
+            <X size={20} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
       </View>
@@ -267,6 +267,7 @@ export default function ClientDetailScreen() {
               placeholder="-23.550520, -46.633309"
               placeholderTextColor="#9CA3AF"
               onBlur={handleParseCoordinates}
+              readOnly
             />
           </View>
 
@@ -332,6 +333,11 @@ const styles = StyleSheet.create({
   saveButtonDisabled: {
     opacity: 0.5,
   },
+  deleteActionButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#FF0000',
+  },
   actionButton: {
     padding: 8,
     borderRadius: 8,
@@ -384,6 +390,17 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#374151',
     marginBottom: 6,
+  },  
+  coordenadasInput: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#111827',
+    minHeight: 48,
   },
   input: {
     backgroundColor: '#FFFFFF',

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft, CreditCard as Edit, MoveVertical as MoreVertical, Users } from 'lucide-react-native';
+import { ArrowLeft, CreditCard as Edit, MoveVertical as MoreVertical, SquarePen, Users, X } from 'lucide-react-native';
 import { useAppData } from '@/hooks/useAppData';
 import { ClientCard } from '@/components/ClientCard';
 import { EmptyState } from '@/components/EmptyState';
@@ -89,12 +89,12 @@ export default function RouteDetailScreen() {
         </View>
 
         <View style={styles.headerActions}>
-          <TouchableOpacity onPress={handleEditRoute} style={styles.actionButton}>
-            <Edit size={20} color="#6B7280" />
+          <TouchableOpacity onPress={handleEditRoute} style={styles.editActionButton}>
+            <SquarePen size={20} color="#FFFFFF" />
           </TouchableOpacity>
           
-          <TouchableOpacity onPress={handleDeleteRoute} style={styles.actionButton}>
-            <MoreVertical size={20} color="#6B7280" />
+          <TouchableOpacity onPress={handleDeleteRoute} style={styles.deleteActionButton}>
+            <X size={20} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
       </View>
@@ -180,6 +180,16 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 8,
     backgroundColor: '#F3F4F6',
+  },
+  editActionButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#3B82F6',
+  },
+  deleteActionButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#FF0000',
   },
   content: {
     flex: 1,

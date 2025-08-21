@@ -1,5 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useMemo, useCallback } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity, 
+  Alert,
+  RefreshControl 
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RefreshCw, Route } from 'lucide-react-native';
 import { useAppData } from '@/hooks/useAppData';
@@ -9,7 +17,7 @@ import { getCurrentDayOfWeek, formatDayName } from '@/utils/dateUtils';
 import { useRouter } from 'expo-router';
 
 export default function TodayScreen() {
-  const { data, loading, resetWeek } = useAppData();
+  const { data, loading, resetWeek, refreshData } = useAppData();
   const router = useRouter();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -20,6 +28,19 @@ export default function TodayScreen() {
       route.daysOfWeek.includes(currentDay as any)
     );
   }, [data.routes, currentDay]);
+
+  // 🔄 Função para refresh manual
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refreshData();
+      console.log('🔄 Dados da tela "Hoje" atualizados');
+    } catch (error) {
+      console.error('❌ Erro ao atualizar dados:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refreshData]);
 
   const getRouteAttendedCount = (routeId: string) => {
     const routeAttended = data.weeklyStatus.attended[routeId] || {};
@@ -41,8 +62,14 @@ export default function TodayScreen() {
           style: 'destructive',
           onPress: async () => {
             setRefreshing(true);
-            await resetWeek();
-            setRefreshing(false);
+            try {
+              await resetWeek();
+              console.log('🔄 Semana resetada com sucesso');
+            } catch (error) {
+              console.error('❌ Erro ao resetar semana:', error);
+            } finally {
+              setRefreshing(false);
+            }
           }
         },
       ]
@@ -57,7 +84,7 @@ export default function TodayScreen() {
     return todaysRoutes.reduce((total, route) => total + getRouteAttendedCount(route.id), 0);
   }, [todaysRoutes, data.weeklyStatus.attended]);
 
-  if (loading) {
+  if (loading && !refreshing) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
@@ -82,7 +109,21 @@ export default function TodayScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      {/* 🔄 ScrollView com RefreshControl */}
+      <ScrollView 
+        style={styles.content} 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#3B82F6']} // Android
+            tintColor="#3B82F6"   // iOS
+            title="Atualizando rotas de hoje..." // iOS
+            titleColor="#6B7280"                 // iOS
+          />
+        }
+      >
         {todaysRoutes.length === 0 ? (
           <EmptyState
             title="Nenhuma rota hoje"
@@ -101,6 +142,13 @@ export default function TodayScreen() {
               onPress={() => handleRoutePress(route.id)}
             />
           ))
+        )}
+
+        {/* 🔄 Indicador visual quando está atualizando */}
+        {refreshing && (
+          <View style={styles.refreshingIndicator}>
+            <Text style={styles.refreshingText}>Atualizando rotas de hoje...</Text>
+          </View>
         )}
       </ScrollView>
     </SafeAreaView>
@@ -145,5 +193,13 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 20,
+  },
+  refreshingIndicator: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  refreshingText: {
+    color: '#6B7280',
+    fontSize: 14,
   },
 });
