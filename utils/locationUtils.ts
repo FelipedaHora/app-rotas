@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import * as Linking from 'expo-linking';
+import { Linking, Platform } from 'react-native';
 
 export const getCurrentLocation = async () => {
   const { status } = await Location.requestForegroundPermissionsAsync();
@@ -34,8 +34,23 @@ export const geocodeAddress = async (address: string) => {
 };
 
 export const openMaps = (lat: number, lng: number) => {
-  const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-  Linking.openURL(url);
+  const scheme = Platform.select({
+    ios: 'maps:0,0?q=',
+    android: 'geo:0,0?q='
+  });
+  
+  const latLng = `${lat},${lng}`;
+  const label = 'Localização';
+  const url = Platform.select({
+    ios: `${scheme}${label}@${latLng}`,
+    android: `${scheme}${latLng}(${label})`
+  });
+
+  Linking.openURL(url as string).catch(() => {
+    // Fallback para Google Maps web
+    const fallbackUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+    Linking.openURL(fallbackUrl);
+  });
 };
 
 export const openPhone = (phone: string) => {
